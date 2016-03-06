@@ -34,6 +34,9 @@ activity <- read.csv(fileData, colClasses = c("numeric", "sdate", "numeric"))
 activityperday <- activity %>% na.omit() %>% group_by(date) %>% summarise(steps = sum(steps))
 ggplot(activityperday, aes(x = date, y = steps)) + geom_bar(stat = "identity")
 
+ggplot(activityperday, aes(x = steps)) + geom_histogram()
+
+
 mean(activityperday$steps)
 median(activityperday$steps)
 
@@ -55,8 +58,32 @@ activityperinterval[activityperinterval$steps == maxsteps,]
 ```{r}
 sum(is.na(activity$steps))
 
+stepsintervalmean <- mean(activity$steps, na.rm = TRUE)
+
+activitywona <- activity
+activitywona[is.na(activitywona$steps),]$steps <- stepsintervalmean
+
+activitywonaperday <- activitywona %>% na.omit() %>% group_by(date) %>% summarise(steps = sum(steps))
+
+ggplot(activitywonaperday, aes(x = steps)) + geom_histogram()
+
+mean(activitywonaperday$steps)
+median(activitywonaperday$steps)
+
 ```
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+activitywona$typeday <- NA
+activitywona[weekdays(activitywona$date, abbreviate =TRUE) %in% c("dom.","sáb"),]$typeday <- "weekend"
+
+activitywona[is.na(activitywona$typeday),]$typeday <- "weekday"
+
+activitywonaperinterval <- activitywona %>% group_by(typeday,interval) %>% summarise(steps = mean(steps))
+ggplot(activitywonaperinterval, aes(x=interval, y=steps)) + geom_line() + facet_grid(typeday~.)
+
+
+```
+

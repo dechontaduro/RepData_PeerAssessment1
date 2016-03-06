@@ -63,6 +63,16 @@ ggplot(activityperday, aes(x = date, y = steps)) + geom_bar(stat = "identity")
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
 
 ```r
+ggplot(activityperday, aes(x = steps)) + geom_histogram()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-2.png)
+
+```r
 mean(activityperday$steps)
 ```
 
@@ -112,6 +122,52 @@ sum(is.na(activity$steps))
 ## [1] 2304
 ```
 
+```r
+stepsintervalmean <- mean(activity$steps, na.rm = TRUE)
+
+activitywona <- activity
+activitywona[is.na(activitywona$steps),]$steps <- stepsintervalmean
+
+activitywonaperday <- activitywona %>% na.omit() %>% group_by(date) %>% summarise(steps = sum(steps))
+
+ggplot(activitywonaperday, aes(x = steps)) + geom_histogram()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
+
+```r
+mean(activitywonaperday$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median(activitywonaperday$steps)
+```
+
+```
+## [1] 10766.19
+```
+
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```r
+activitywona$typeday <- NA
+activitywona[weekdays(activitywona$date, abbreviate =TRUE) %in% c("dom.","sáb"),]$typeday <- "weekend"
+
+activitywona[is.na(activitywona$typeday),]$typeday <- "weekday"
+
+activitywonaperinterval <- activitywona %>% group_by(typeday,interval) %>% summarise(steps = mean(steps))
+ggplot(activitywonaperinterval, aes(x=interval, y=steps)) + geom_line() + facet_grid(typeday~.)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)
+
