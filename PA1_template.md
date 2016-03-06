@@ -36,6 +36,8 @@ zipData <- "activity.zip"
 fileData <- "activity.csv"
 dateFormat <- "%Y-%m-%d"
 
+weekenddays <- c("sáb", "dom.") #Spanish shortnames for saturday and sunday
+
 if (!file.exists(fileData)) { 
   if (!file.exists(zipData)){
     download.file(urlData, zipData)
@@ -57,17 +59,17 @@ activity <- read.csv(fileData, colClasses = c("numeric", "sdate", "numeric"))
 
 ```r
 activityperday <- activity %>% na.omit() %>% group_by(date) %>% summarise(steps = sum(steps))
-ggplot(activityperday, aes(x = date, y = steps)) + geom_bar(stat = "identity")
-```
-
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
-
-```r
 ggplot(activityperday, aes(x = steps)) + geom_histogram()
 ```
 
 ```
 ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
+
+```r
+ggplot(activityperday, aes(x = date, y = steps)) + geom_bar(stat = "identity")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-2.png)
@@ -154,14 +156,14 @@ median(activitywonaperday$steps)
 ```
 ## [1] 10766.19
 ```
-
+Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 ```r
 activitywona$typeday <- NA
-activitywona[weekdays(activitywona$date, abbreviate =TRUE) %in% c("dom.","sáb"),]$typeday <- "weekend"
+activitywona[weekdays(activitywona$date, abbreviate =TRUE) %in% weekenddays,]$typeday <- "weekend"
 
 activitywona[is.na(activitywona$typeday),]$typeday <- "weekday"
 
